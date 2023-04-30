@@ -1,21 +1,49 @@
+import axios from 'axios';
 import React, { useState, ChangeEvent } from 'react';
 
 const StyleCreate: React.FC = () => {
   const [styleName, setStyleName] = useState('');
-  const [category, setCategory] = useState('');
+  const [keywords, setKeywords] = useState('');
   const [description, setDescription] = useState('');
-  const [images, setImages] = useState<File[]>([]);
+  const [zipFile, setZipFile] = useState<File | null>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setImages(Array.from(e.target.files));
-    }
+    setZipFile(e.target.files ? e.target.files[0] : null);
   };
+
+  const handleUpload = async (zipFile: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('zipFile', zipFile);
+    const response = await axios.post('/api/image/archive', formData);
+  
+    return response.data.serving_url;
+  };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!zipFile) return;
+    let servingUrl = '';
 
-    // Add your API integration code here to create the style and upload images
+    try {
+      console.log('uploading image archive');
+      servingUrl = await handleUpload(zipFile);
+
+      try {
+        const response = await axios.post('/api/style/create', {
+          styleName,
+          keywords,
+          description,
+          servingUrl,
+        });
+
+        console.log('Style created:', response.data);
+      } catch (error: any) {
+        console.error('Error creating style:', error.message);
+      }
+    } catch (error: any) {
+      console.error('Error uploading image archive: ', error.message);
+    }
   };
 
   return (
@@ -33,21 +61,6 @@ const StyleCreate: React.FC = () => {
           onChange={(e) => setStyleName(e.target.value)}
         />
 
-        <label htmlFor="category" className="block mb-2">
-          Category
-        </label>
-        <select
-          id="category"
-          className="border-2 border-gray-300 p-2 mb-4 w-full"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          <option value="">Select a category</option>
-          {/* Add your categories here */}
-          <option value="abstract">Abstract</option>
-          <option value="nature">Nature</option>
-        </select>
-
         <label htmlFor="description" className="block mb-2">
           Description
         </label>
@@ -59,30 +72,32 @@ const StyleCreate: React.FC = () => {
           onChange={(e) => setDescription(e.target.value)}
         ></textarea>
 
-        <label htmlFor="images" className="block mb-2">
-          Upload Images (10-20)
+        <label htmlFor="category" className="block mb-2">
+          Keywords
+        </label>
+        <input
+          id="category"
+          className="border-2 border-gray-300 p-2 mb-4 w-full"
+          value={keywords}
+          onChange={(e) => setKeywords(e.target.value)}
+        >
+        </input>
+
+        <label htmlFor="zip" className="block mb-2">
+          Upload Zip Folder with Images
         </label>
         <input
           id="images"
           type="file"
-          className="border-2 border-gray-300 p-2 mb-4 w-full"
-          multiple
-          accept="image/*"
+          className="border-2 border-gray-300 p-2 mb-4"
+          accept="application/zip"
           onChange={handleFileChange}
         />
 
-        <div className="grid grid-cols-4 gap-4 mb-4">
-          {images.map((image, index) => (
-            <div key={index} className="border-2 border-gray-300 p-2">
-              {image.name}
-            </div>
-          ))}
-        </div>
-
         <button
           type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded"
-          disabled={!styleName || !category || !description || images.length < 10}
+          className="block bg-blue-500 text-white py-2 px-4 rounded"
+          disabled={!styleName || !keywords || !description || !zipFile}
         >
           Create Style
         </button>

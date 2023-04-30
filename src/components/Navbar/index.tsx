@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import Link from 'next/link';
-import { useUser } from '@clerk/clerk-react';
+import { UserButton, useUser } from '@clerk/clerk-react';
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
@@ -46,13 +46,7 @@ const Navbar = () => {
             <div className="flex h-16 items-center justify-between">
               <div className="flex items-center">
                 <NavButton href='/'>
-                  <div className="flex-shrink-0">
-                    <img
-                      className="h-8 w-8"
-                      src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                      alt="Ai Art Style Logo"
-                    />
-                  </div>
+                  <b className='font-bold text-2xl'>Dream In Style</b>
                 </NavButton>
                 <div className="hidden md:block">
                   <div className="ml-10 flex items-baseline space-x-4">
@@ -70,11 +64,12 @@ const Navbar = () => {
               <div className="hidden md:block">
                 <div className="ml-4 flex items-center md:ml-6">
                   {/* Profile dropdown */}
-                  <Menu as="div" className="relative ml-3">
+                  {user && <UserButton />}
+                  {/* <Menu as="div" className="relative ml-3">
                     <div>
                       <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                         <span className="sr-only">Open user menu</span>
-                        <img className="h-8 w-8 rounded-full" src="https://media.discordapp.net/attachments/1037414950152437790/1100970450936402020/Liftaris_a_creative_defaultplaceholder_anonymous_profile_pictur_e72e3724-3b7a-4483-8535-93bdf28922a9.png?width=701&height=701" alt="" />
+                        <img className="h-8 w-8 rounded-full" src="https://imgur.com/bijOVdRl.png" alt="" />
                       </Menu.Button>
                     </div>
                     <Transition
@@ -104,7 +99,7 @@ const Navbar = () => {
                         ))}
                       </Menu.Items>
                     </Transition>
-                  </Menu>
+                  </Menu> */}
                 </div>
               </div>
               <div className="-mr-2 flex md:hidden">
