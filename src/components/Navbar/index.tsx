@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import Link from 'next/link';
 import { UserButton, useUser } from '@clerk/clerk-react';
 import { Disclosure, Menu, Transition } from '@headlessui/react'
@@ -16,19 +16,20 @@ function classNames(...classes: string[]) {
 
 type NavButtonProps = {
   href: string;
+  activeTab: string;
   children: React.ReactNode;
 };
 
-const NavButton = ({ href, children }: NavButtonProps) => {
+const NavButton = ({ href, activeTab, children }: NavButtonProps) => {
   return (
     <a
       key={href.split('/').pop()}
       href={href}
       className={classNames(
-        'text-gray-300 hover:bg-gray-700 hover:text-white',
-        'rounded-md px-3 py-2 text-sm font-medium'
+        'text-gray-900 hover:bg-gray-900 hover:text-white',
+        'rounded-md px-3 py-2 text-sm font-medium',
+        activeTab === href ? 'bg-gray-900 text-white' : 'text-gray-900'
       )}
-    // aria-current={item.current ? 'page' : undefined}
     >
       {children}
     </a>
@@ -37,26 +38,32 @@ const NavButton = ({ href, children }: NavButtonProps) => {
 
 const Navbar = () => {
   const { user } = useUser();
+  const [activeTab, setActiveTab] = React.useState('');
+
+  useEffect(() => {
+    console.log(window.location.pathname);
+    setActiveTab(window.location.pathname);
+  }, []);
 
   return (
-    <Disclosure as="nav" className="bg-gray-800">
+    <Disclosure as="nav" className="bg-transparent">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
               <div className="flex items-center">
-                <NavButton href='/'>
+                <NavButton activeTab={activeTab} href='/'>
                   <b className='font-bold text-2xl'>Dream In Style</b>
                 </NavButton>
                 <div className="hidden md:block">
                   <div className="ml-10 flex items-baseline space-x-4">
-                    <NavButton href="/gallery">Gallery</NavButton>
+                    <NavButton href="/gallery" activeTab={activeTab}>Gallery</NavButton>
                     {(user
                       ? (<>
-                        <NavButton href="/artist">Artist</NavButton>
-                        <NavButton href="/style/create">Create Style</NavButton>
+                        <NavButton href="/artist" activeTab={activeTab}>Artist</NavButton>
+                        <NavButton href="/style/create" activeTab={activeTab}>Create Style</NavButton>
                       </>)
-                      : <NavButton href="/signin">Sign In</NavButton>
+                      : <NavButton href="/signin" activeTab={activeTab}>Sign In</NavButton>
                     )}
                   </div>
                 </div>
@@ -64,42 +71,10 @@ const Navbar = () => {
               <div className="hidden md:block">
                 <div className="ml-4 flex items-center md:ml-6">
                   {/* Profile dropdown */}
-                  {user && <UserButton />}
-                  {/* <Menu as="div" className="relative ml-3">
-                    <div>
-                      <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                        <span className="sr-only">Open user menu</span>
-                        <img className="h-8 w-8 rounded-full" src="https://imgur.com/bijOVdRl.png" alt="" />
-                      </Menu.Button>
-                    </div>
-                    <Transition
-                      as={Fragment}
-                      enter="transition ease-out duration-100"
-                      enterFrom="transform opacity-0 scale-95"
-                      enterTo="transform opacity-100 scale-100"
-                      leave="transition ease-in duration-75"
-                      leaveFrom="transform opacity-100 scale-100"
-                      leaveTo="transform opacity-0 scale-95"
-                    >
-                      <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                        {userNavigation.map((item) => (
-                          <Menu.Item key={item.name}>
-                            {({ active }) => (
-                              <a
-                                href={item.href}
-                                className={classNames(
-                                  active ? 'bg-gray-100' : '',
-                                  'block px-4 py-2 text-sm text-gray-700'
-                                )}
-                              >
-                                {item.name}
-                              </a>
-                            )}
-                          </Menu.Item>
-                        ))}
-                      </Menu.Items>
-                    </Transition>
-                  </Menu> */}
+                  {user && (<>
+                    <UserButton /> <div className='px-5 py-2'>{user.fullName}</div>
+                  </>)}
+
                 </div>
               </div>
               <div className="-mr-2 flex md:hidden">

@@ -18,7 +18,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const isPublicPage = publicPages.includes(pathname);
   return (
-    <ClerkProvider appearance={{baseTheme:'dark'}} {...pageProps} >
+    <ClerkProvider {...pageProps} >
       <Navbar />
       {isPublicPage ? (
         <Component {...pageProps} />
