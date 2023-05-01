@@ -1,15 +1,13 @@
 import Navbar from '@/components/Navbar';
+import { getUser, registerUser } from '@/lib/db';
 import '@/styles/globals.css'
 import {
   ClerkProvider, SignedIn,
   SignedOut,
   RedirectToSignIn,
 } from '@clerk/nextjs';
-import axios from 'axios';
-import { GetServerSideProps } from 'next';
 import type { AppProps } from 'next/app'
 import { useRouter } from "next/router";
-import { useEffect } from 'react';
 
 const publicPages: Array<string> = ['/', '/gallery'];
 

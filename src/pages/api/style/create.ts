@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { PrismaClient, Style } from '@prisma/client';
 import { getAuth } from '@clerk/nextjs/server';
+import { createStyle } from '@/lib/db';
 
 const prisma = new PrismaClient();
 
@@ -11,12 +12,12 @@ const REPLICATE_API_BASE_URL = 'https://dreambooth-api-experimental.replicate.co
 const trainDreamBoothModel = async (servingUrl: string, name: string) => {
     const trainingData = {
         input: {
-            instance_prompt: 'a photo of a kbc',
-            class_prompt: `a style of ${name}`,
+            instance_prompt: `a photo of a kbc ${name.toLowerCase()}}`,
+            class_prompt: `a style of ${name.toLowerCase()}`,
             instance_data: servingUrl,
             max_train_steps: 2000,
         },
-        model: `kaiobarb/${name}`,
+        model: `kaiobarb/${name.toLowerCase()}`,
         trainer_version:
             'cd3f925f7ab21afaef7d45224790eedbb837eeac40d22e8fefe015489ab644aa',
     };
@@ -37,21 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { servingUrl, styleName, keywords, description } = req.body;
     try {
         response = await trainDreamBoothModel(servingUrl, styleName);
-        console.log(response);
-        try {
-            // code to save style to db
-            const style = await prisma.style.create({
-                data: {
-                    userId: Number(userId) ?? undefined,
-                    name: styleName,
-                    keywords,
-                    description,
-                    archiveURL: servingUrl,
-                },
-            });
-        } catch (e) {
-            console.log('Error saving style to db:', e);
-        }
+        if (userId) await createStyle(userId, styleName, keywords, description, servingUrl)
     } catch (e) {
         console.log(e);
     }

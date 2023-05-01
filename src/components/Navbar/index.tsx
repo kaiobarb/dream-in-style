@@ -1,8 +1,8 @@
-import React, { Fragment, useEffect } from 'react';
-import Link from 'next/link';
+import React, { useEffect } from 'react';
+import axios from 'axios';
 import { UserButton, useUser } from '@clerk/clerk-react';
-import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Disclosure } from '@headlessui/react'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
@@ -44,6 +44,17 @@ const Navbar = () => {
     console.log(window.location.pathname);
     setActiveTab(window.location.pathname);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      axios.post('/api/user/register', {
+        clerkId: user.id,
+        email: user.primaryEmailAddress?.emailAddress,
+      }).then((response) => {
+        console.log('User created:', response.data);
+      })
+    }
+  }, [user]);
 
   return (
     <Disclosure as="nav" className="bg-transparent">
